@@ -1,2 +1,2 @@
 # my-first-repo
-Learning how to use GitHub
+This is my very first commi
