@@ -1,2 +1,1 @@
-# my-first-repo
-This change is happening in my parallel universe!
+Benchmarking the HN_Adam Algorithm Across Deep Generative Model Architectures for Image Synthesis
