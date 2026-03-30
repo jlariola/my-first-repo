@@ -17,7 +17,7 @@ class HNAdam(Optimizer):
         self,
         params: Iterable[Tensor],
         lr: float = 1e-3,
-        betas: tuple[float, float] = (0.9, 0.999),
+        betas: tuple[float, float] = (0.9, 0.99),
         eps: float = 1e-8,
         lambda_t0: Optional[float] = None,
     ) -> None:
@@ -80,7 +80,6 @@ class HNAdam(Optimizer):
 
                 # Initialize: m0 = 0, v0 = 0, amsgrad = False, vhat(0) = 0
                 if len(state) == 0:
-                    state["step"] = 0
                     state["m"] = torch.zeros_like(param, memory_format=torch.preserve_format)
                     state["v"] = torch.zeros_like(param, memory_format=torch.preserve_format)
                     state["vhat"] = torch.zeros_like(param, memory_format=torch.preserve_format)
@@ -89,7 +88,7 @@ class HNAdam(Optimizer):
                 v_prev: Tensor = state["v"]
                 vhat_prev: Tensor = state["vhat"]
 
-                state["step"] += 1
+                # Step 4: Draw random batch from dataset is handled in the training loop.
 
                 # Step 5: g_t <- gradient at the current parameters.
                 g_t = grad
@@ -105,10 +104,8 @@ class HNAdam(Optimizer):
 
                 # Step 8: Lambda(t) <- Lambda_t0 - (m_{t-1} / m_max).
                 # If m_max == 0, set ratio = 0 to avoid division by zero.
-                if m_max.item() == 0.0:
-                    ratio = torch.zeros((), dtype=param.dtype, device=param.device)
-                else:
-                    ratio = m_prev_norm / m_max
+                zero = torch.zeros((), dtype=param.dtype, device=param.device)
+                ratio = torch.where(m_max > 0.0, m_prev_norm / m_max, zero)
                 lambda_t = torch.as_tensor(lambda_t0, dtype=param.dtype, device=param.device) - ratio
 
                 # Step 9: v_t <- beta2 * v_{t-1} + (1 - beta2) * (|g_t|)^Lambda(t).
