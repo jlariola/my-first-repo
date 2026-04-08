@@ -1,4 +1,6 @@
 torchvision
+torchmetrics
+torch-fidelity
 torch
 pandas
 numpy
